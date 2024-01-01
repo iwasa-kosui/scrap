@@ -26,3 +26,22 @@ This article shows how to implement it.
   frameborder="0"
   style="border: 3px solid #aaa;"
 />
+
+## How it works
+
+### Capture wheel events (includes the children element's events)
+
+You can capture wheel events in the document, even if the cursor is on the children element.
+
+```js
+document.addEventListener(
+  "wheel",
+  (e) => {
+    console.log(`Scroll size (Y): ${e.deltaY}`);
+  },
+  {
+    passive: false,
+    capture: true,
+  },
+);
+```

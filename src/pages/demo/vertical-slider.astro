@@ -44,7 +44,10 @@
         }
       };
 
-      document.addEventListener("wheel", onWheel, { passive: false });
+      document.addEventListener("wheel", onWheel, {
+        passive: false,
+        capture: true,
+      });
     </script>
     <style>
       main {
@@ -67,7 +70,7 @@
 
       .slider {
         display: block;
-        overflow-y: hidden;
+        overflow-y: scroll;
       }
 
       .slider-content {
