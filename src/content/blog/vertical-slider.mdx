@@ -29,7 +29,7 @@ This article shows how to implement it.
 
 ## How it works
 
-### Capture wheel events (includes the children element's events)
+### Capture wheel events <br/> (includes the children element's events)
 
 You can capture wheel events in the document, even if the cursor is on the children element.
 
@@ -40,6 +40,40 @@ document.addEventListener(
     console.log(`Scroll size (Y): ${e.deltaY}`);
   },
   {
+    passive: false,
+    capture: true,
+  },
+);
+```
+
+### Enforce users to scroll slider's contents
+
+```js
+const slider = document.querySelector(".slider");
+const onWheel = (e) => {
+  // slider
+  const sliderRect = slider.getBoundingClientRect();
+  const sliderLastChildRect =
+    slider.lastElementChild!.getBoundingClientRect();
+
+  // wheel speed
+  const { deltaY } = e;
+
+  if (
+    // whether the slider reaching to top of the viewport
+    sliderRect.top <= 0 &&
+    // whether the user is trying to scroll down
+    deltaY > 0 &&
+    // whether all slider content has been scrolled
+    sliderRect.bottom < sliderLastChildRect.bottom
+  ) {
+    e.preventDefault();
+    slider.scrollBy(0, deltaY);
+    return;
+  }
+}
+
+document.addEventListener("wheel", onWheel {
     passive: false,
     capture: true,
   },
