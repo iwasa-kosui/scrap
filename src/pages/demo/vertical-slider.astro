@@ -7,14 +7,18 @@
   <head>
     <script>
       const slider = document.querySelector(".slider")!;
+
+      // Absolute Y-coordinate of slider in the body.
+      const sliderTop =
+        slider.getBoundingClientRect().top +
+        window.scrollY -
+        (window.innerHeight / 2 - slider.getBoundingClientRect().height / 2);
+
       const onWheel = (e: WheelEvent) => {
         // slider
         const sliderRect = slider.getBoundingClientRect();
         const sliderLastChildRect =
           slider.lastElementChild!.getBoundingClientRect();
-
-        // window
-        const windowY = window.scrollY;
 
         // wheel speed
         const { deltaY } = e;
@@ -27,31 +31,25 @@
           sliderRect.bottom < sliderLastChildRect.bottom
         ) {
           e.preventDefault();
-          window.scrollTo(0, sliderRect.top + windowY - center);
-          slider.scrollTo(0, slider.scrollTop + deltaY);
+          window.scrollTo(0, sliderTop);
+          slider.scrollBy(0, deltaY);
           return;
         }
 
         if (sliderRect.top >= center && deltaY < 0 && slider.scrollTop > 0) {
           e.preventDefault();
-          window.scrollTo(0, sliderRect.top + windowY - center);
-          slider.scrollTo(0, slider.scrollTop + deltaY);
+          window.scrollTo(0, sliderTop);
+          slider.scrollBy(0, deltaY);
           return;
         }
       };
 
-      document.addEventListener(
-        "wheel",
-        (e) => {
-          onWheel(e);
-        },
-        { passive: false },
-      );
+      document.addEventListener("wheel", onWheel, { passive: false });
     </script>
     <style>
       main {
         margin: auto;
-        max-width: 800px;
+        max-width: 300px;
       }
 
       section {
@@ -77,7 +75,7 @@
         justify-content: center;
         align-items: center;
 
-        height: 300px;
+        height: 200px;
         margin: 16px;
 
         color: #fff;
@@ -89,18 +87,20 @@
   </head>
   <body>
     <main>
-      <section>#1</section>
-      <section>#2</section>
-      <section>#3</section>
+      <p>Please scroll to the below.</p>
+      <b>NOT slider</b>
+      <section>dummy content</section>
+      <section>dummy content</section>
+      <b>slider</b>
       <section class="slider">
-        <div class="slider-content">A</div>
-        <div class="slider-content">B</div>
-        <div class="slider-content">C</div>
-        <div class="slider-content">D</div>
+        <div class="slider-content">slider content A</div>
+        <div class="slider-content">slider content B</div>
+        <div class="slider-content">slider content C</div>
+        <div class="slider-content">slider content D</div>
       </section>
-      <section>#4</section>
-      <section>#5</section>
-      <section>#6</section>
+      <b>NOT slider</b>
+      <section>dummy content</section>
+      <section>dummy content</section>
     </main>
   </body>
 </html>
