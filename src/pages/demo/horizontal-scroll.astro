@@ -1,0 +1,106 @@
+---
+
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      const slider = document.querySelector(".slider")!;
+      const onWheel = (e: WheelEvent) => {
+        // slider
+        const sliderRect = slider.getBoundingClientRect();
+        const sliderLastChildRect =
+          slider.lastElementChild!.getBoundingClientRect();
+
+        // window
+        const windowY = window.scrollY;
+
+        // wheel speed
+        const { deltaY } = e;
+
+        const center = window.innerHeight / 2 - sliderRect.height / 2;
+
+        if (
+          sliderRect.top <= center &&
+          deltaY > 0 &&
+          sliderRect.bottom < sliderLastChildRect.bottom
+        ) {
+          e.preventDefault();
+          window.scrollTo(0, sliderRect.top + windowY - center);
+          slider.scrollTo(0, slider.scrollTop + deltaY);
+          return;
+        }
+
+        if (sliderRect.top >= center && deltaY < 0 && slider.scrollTop > 0) {
+          e.preventDefault();
+          window.scrollTo(0, sliderRect.top + windowY - center);
+          slider.scrollTo(0, slider.scrollTop + deltaY);
+          return;
+        }
+      };
+
+      document.addEventListener(
+        "wheel",
+        (e) => {
+          onWheel(e);
+        },
+        { passive: false },
+      );
+    </script>
+    <style>
+      main {
+        margin: auto;
+        max-width: 800px;
+      }
+
+      section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        height: 300px;
+        width: 100%;
+        margin: 32px 0;
+
+        background: #ccc;
+        border-radius: 16px;
+      }
+
+      .slider {
+        display: block;
+        overflow-y: hidden;
+      }
+
+      .slider-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        height: 300px;
+        margin: 16px;
+
+        color: #fff;
+        background: #222;
+        border: 4px #555 solid;
+        border-radius: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section>#1</section>
+      <section>#2</section>
+      <section>#3</section>
+      <section class="slider">
+        <div class="slider-content">A</div>
+        <div class="slider-content">B</div>
+        <div class="slider-content">C</div>
+        <div class="slider-content">D</div>
+      </section>
+      <section>#4</section>
+      <section>#5</section>
+      <section>#6</section>
+    </main>
+  </body>
+</html>
