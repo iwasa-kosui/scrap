@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>#3 enforce scrolling the inner slider</title>
+    <style>
+      html,
+      body {
+        height: 100vh;
+        overflow: hidden;
+        margin: 0;
+      }
+
+      main {
+        height: 100vh;
+        width: 100vw;
+        overflow: scroll;
+
+        scroll-snap-type: y mandatory;
+      }
+
+      main h1 {
+        text-align: center;
+      }
+
+      section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        scroll-snap-align: center;
+
+        height: 600px;
+        width: 100%;
+        max-width: 80vw;
+        margin: 64px auto;
+
+        background: #ccc;
+        border-radius: 16px;
+        font-size: 24px;
+      }
+
+      section.slider {
+        display: block;
+        overflow: scroll;
+
+        scroll-snap-type: y mandatory;
+      }
+
+      section.slider .slider-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 32px;
+        width: calc(100% - 64px);
+        height: 400px;
+
+        scroll-snap-align: center;
+
+        color: #fff;
+        background: #222;
+        border: 4px #555 solid;
+        border-radius: 16px;
+      }
+    </style>
+    <script>
+      const slider = document.querySelector(".slider")!;
+
+      // Absolute Y-coordinate of slider in the body.
+      const sliderTop =
+        slider.getBoundingClientRect().top +
+        window.scrollY -
+        (window.innerHeight / 2 - slider.getBoundingClientRect().height / 2);
+
+      const isSliderOnTheBelow = () => {
+        const sliderRect = slider.getBoundingClientRect();
+        return sliderRect.bottom > window.innerHeight;
+      };
+      const isSliderOnTheAbove = () => {
+        const sliderRect = slider.getBoundingClientRect();
+        return sliderRect.top < 0;
+      };
+
+      const sliderContents = Array.from(
+        slider.querySelectorAll(".slider-content"),
+      );
+
+      const firstContent = sliderContents[0];
+      const isFirstContentShown = () => {
+        const sliderRect = slider.getBoundingClientRect();
+        const contentRect = firstContent.getBoundingClientRect();
+        return (
+          sliderRect.top < contentRect.top &&
+          sliderRect.bottom > contentRect.bottom
+        );
+      };
+
+      const lastContent = sliderContents[sliderContents.length - 1];
+      const isLastContentShown = () => {
+        const sliderRect = slider.getBoundingClientRect();
+        const contentRect = lastContent.getBoundingClientRect();
+        return (
+          sliderRect.top < contentRect.top &&
+          sliderRect.bottom > contentRect.bottom
+        );
+      };
+
+      const minSpeed = 10;
+      const duration = 1000;
+      let lastSliderScrolledAt = Date.now();
+      const scrollSlider = (speed: number) => {
+        const now = Date.now();
+        if (
+          lastSliderScrolledAt + duration < now &&
+          minSpeed < Math.abs(speed)
+        ) {
+          slider.scrollBy({
+            top: speed,
+            behavior: "smooth",
+          });
+          lastSliderScrolledAt = now;
+        }
+      };
+
+      const onScroll = (e: Event, speed: number) => {
+        if (speed > 0 && !isSliderOnTheBelow() && !isLastContentShown()) {
+          e.preventDefault();
+          window.scrollTo(0, sliderTop);
+          scrollSlider(speed);
+          return;
+        }
+        if (speed < 0 && !isSliderOnTheAbove() && !isFirstContentShown()) {
+          e.preventDefault();
+          window.scrollTo(0, sliderTop);
+          scrollSlider(speed);
+          return;
+        }
+      };
+      const onWheel = (e: WheelEvent) => {
+        onScroll(e, e.deltaY);
+      };
+
+      let prevY = 0;
+      const onTouchStart = (e: TouchEvent) => {
+        prevY = e.touches[0].pageY;
+      };
+
+      const onTouchMove = (e: TouchEvent) => {
+        const y = e.touches[0].pageY;
+        onScroll(e, prevY - y);
+        prevY = y;
+      };
+
+      const options = {
+        passive: false,
+        capture: true,
+      };
+      document.addEventListener("wheel", onWheel, options);
+      document.addEventListener("touchstart", onTouchStart, options);
+      document.addEventListener("touchmove", onTouchMove, options);
+    </script>
+  </head>
+  <body>
+    <main>
+      <h1>#03 enforce scrolling the inner slider</h1>
+      <section>section 1</section>
+      <section class="slider">
+        <div class="slider-content">a</div>
+        <div class="slider-content">b</div>
+        <div class="slider-content">c</div>
+        <div class="slider-content">d</div>
+      </section>
+      <section>section 3</section>
+    </main>
+  </body>
+</html>
