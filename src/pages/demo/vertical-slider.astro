@@ -14,14 +14,11 @@
         window.scrollY -
         (window.innerHeight / 2 - slider.getBoundingClientRect().height / 2);
 
-      const onWheel = (e: WheelEvent) => {
+      const onWheel = (e: Event, deltaY: number) => {
         // slider
         const sliderRect = slider.getBoundingClientRect();
         const sliderLastChildRect =
           slider.lastElementChild!.getBoundingClientRect();
-
-        // wheel speed
-        const { deltaY } = e;
 
         const center = window.innerHeight / 2 - sliderRect.height / 2;
 
@@ -30,24 +27,55 @@
           deltaY > 0 &&
           sliderRect.bottom < sliderLastChildRect.bottom
         ) {
-          e.preventDefault();
+          if (e.cancelable) {
+            e.preventDefault();
+          }
           window.scrollTo(0, sliderTop);
           slider.scrollBy(0, deltaY);
           return;
         }
 
+        console.log(deltaY);
         if (sliderRect.top >= center && deltaY < 0 && slider.scrollTop > 0) {
-          e.preventDefault();
+          if (e.cancelable) {
+            e.preventDefault();
+          }
           window.scrollTo(0, sliderTop);
           slider.scrollBy(0, deltaY);
           return;
         }
       };
 
-      document.addEventListener("wheel", onWheel, {
+      document.addEventListener("wheel", (e) => onWheel(e, e.deltaY), {
         passive: false,
         capture: true,
       });
+
+      if ("ontouchstart" in window) {
+        let prevY = 0;
+        document.addEventListener(
+          "touchstart",
+          (e) => {
+            prevY = e.touches[0].pageY;
+          },
+          {
+            passive: false,
+            capture: true,
+          },
+        );
+        document.addEventListener(
+          "touchmove",
+          (e) => {
+            const y = e.touches[0].pageY;
+            onWheel(e, prevY - y);
+            prevY = y;
+          },
+          {
+            passive: false,
+            capture: true,
+          },
+        );
+      }
     </script>
     <style>
       main {
